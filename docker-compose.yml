@@ -1,0 +1,196 @@
+version: "3.8"
+
+networks:
+  soa-net:
+  driver: bridge
+
+volumes:
+  pgdata_identity:
+  pgdata_stakeholders:
+  pgdata_tours:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
+
+services:
+  # IDENTITY
+  identity:
+    build:
+      context: ../identity/Identity
+      dockerfile: Identity.Api/Dockerfile
+    container_name: identity
+    ports:
+      - "5226:5226"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5226
+      DB_CONNECTION_STRING_IDENTITY: ${DB_CONNECTION_STRING_IDENTITY}
+      SECRET_KEY: ${SECRET_KEY}
+      ISSUER: ${ISSUER}
+      AUDIENCE: ${AUDIENCE}
+    depends_on:
+      postgres_identity:
+        condition: service_healthy
+    networks:
+      - soa-net
+
+  postgres_identity:
+    image: postgres:latest
+    container_name: postgres_identity
+    environment:
+      POSTGRES_DB_IDENTITY: ${POSTGRES_DB_IDENTITY}
+      POSTGRES_USER_IDENTITY: ${POSTGRES_USER_IDENTITY}
+      POSTGRES_PASSWORD_IDENTITY: ${POSTGRES_PASSWORD_IDENTITY}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_identity:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+    networks:
+      - soa-net
+
+  # STAKEHOLDERS
+  stakeholders:
+    build:
+      context: ../stakeholders/Stakeholders
+      dockerfile: Stakeholders.Api/Dockerfile
+    container_name: stakeholders
+    ports:
+      - "5227:5227"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5227
+      DB_CONNECTION_STRING_STAKEHOLDER: ${DB_CONNECTION_STRING_STAKEHOLDER}
+      SECRET_KEY: ${SECRET_KEY}
+      ISSUER: ${ISSUER}
+      AUDIENCE: ${AUDIENCE}
+    depends_on:
+      postgres_stakeholders:
+        condition: service_healthy
+    networks:
+      - soa-net
+
+    postgres_stakeholders:
+      image: postgres:latest
+      container_name: postgres_stakeholders
+      environment:
+        POSTGRES_DB_STAKEHOLDER: ${POSTGRES_DB_STAKEHOLDER}
+        POSTGRES_USER_STAKEHOLDER: ${POSTGRES_USER_STAKEHOLDER}
+        POSTGRES_PASSWORD_STAKEHOLDER: ${POSTGRES_PASSWORD_STAKEHOLDER}
+      ports:
+        - "5433:5432"
+      volumes:
+        - pgdata_stakeholders:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+        interval: 5s
+        retries: 20
+      networks:
+        - soa-net
+  
+  # FOLLOWERS
+  follower-api:
+    build:
+      context: ../followers-service/Followers
+      dockerfile: Followers/Dockerfile
+    container_name: follower-api
+    ports:
+      - "5228:5228"
+    environment:
+      URI: ${URI}
+      USER: ${USER}
+      PASSWORD: ${PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+      ISSUER: ${ISSUER}
+      AUDIENCE: ${AUDIENCE}
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5228
+    depends_on:
+      neo4j:
+        condition: service_started
+    networks:
+      - soa-net
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/followers
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/import
+      - neo4j_plugins:/plugins
+    networks:
+      - soa-net
+
+  # TOURS
+  tour:
+    build:
+      context: ../tours/Tour
+      dockerfile: Tour/Dockerfile
+    container_name: tour
+    ports:
+      - "5229:5229"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5229
+      DB_CONNECTION_STRING_TOUR: ${DB_CONNECTION_STRING_TOUR}
+      SECRET_KEY: ${SECRET_KEY}
+      ISSUER: ${ISSUER}
+      AUDIENCE: ${AUDIENCE}
+    depends_on:
+      postgres_tours:
+        condition: service_healthy
+    networks:
+      - soa-net
+
+  postgres_tours:
+    image: postgres:latest
+    container_name: postgres_tours
+    environment:
+      POSTGRES_DB_TOUR: ${POSTGRES_DB_TOUR}
+      POSTGRES_USER_TOUR: ${POSTGRES_USER_TOUR}
+      POSTGRES_PASSWORD_TOUR: ${POSTGRES_PASSWORD_TOUR}
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_tours:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 20
+    networks:
+      - soa-net
+  
+  # GATEWAY
+  gateway:
+    build:
+      context: ../gateway/Gateway
+      dockerfile: Gateway/Dockerfile
+    container_name: gateway
+    ports:
+      - "5230:5230"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5230
+      IDENTITY_URL: http://identity:5226
+      STAKEHOLDER_URL: http://stakeholders:5227
+      FOLLOWER_URL: http://follower-api:5228
+      TOUR_URL: http://tour:5229
+    depends_on:
+      - identity
+      - stakeholders
+      - follower-api
+      - tour
+    networks:
+      - soa-net
+
+      
