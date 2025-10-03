@@ -65,9 +65,6 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5227
       DB_CONNECTION_STRING_STAKEHOLDER: ${DB_CONNECTION_STRING_STAKEHOLDER}
-      SECRET_KEY: ${SECRET_KEY}
-      ISSUER: ${ISSUER}
-      AUDIENCE: ${AUDIENCE}
     depends_on:
       postgres_stakeholders:
         condition: service_healthy
