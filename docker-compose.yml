@@ -2,7 +2,7 @@ version: "3.8"
 
 networks:
   soa-net:
-    driver: bridge
+    external: true
 
 volumes:
   pgdata_identity:
@@ -29,7 +29,10 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ISSUER: ${ISSUER}
       AUDIENCE: ${AUDIENCE}
+      NATS_URL: nats://nats:4222
     depends_on:
+      nats:
+        condition: service_started
       postgres_identity:
         condition: service_healthy
     networks:
@@ -106,8 +109,11 @@ services:
       AUDIENCE: ${AUDIENCE}
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5228
+      NATS_URL: nats://nats:4222
     depends_on:
       neo4j:
+        condition: service_started
+      nats:
         condition: service_started
     networks:
       - soa-net
@@ -139,11 +145,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5229
+      NATS_URL: nats://nats:4222
       DB_CONNECTION_STRING_TOUR: ${DB_CONNECTION_STRING_TOUR}
       SECRET_KEY: ${SECRET_KEY}
       ISSUER: ${ISSUER}
       AUDIENCE: ${AUDIENCE}
     depends_on:
+      nats:
+        condition: service_started
       postgres_tours:
         condition: service_healthy
     networks:
@@ -187,6 +196,14 @@ services:
       - stakeholders
       - follower-api
       - tour
+    networks:
+      - soa-net
+  nats:
+    image: nats:latest
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
     networks:
       - soa-net
 
