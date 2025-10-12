@@ -196,7 +196,8 @@ services:
       IDENTITY_URL: http://identity:5226
       STAKEHOLDER_URL: http://stakeholders:5227
       FOLLOWER_URL: http://follower-api:5228
-      TOUR_URL: https://tour:7029
+      TOUR_HTTP_URL: http://tour:5229
+      TOUR_HTTPS_URL: https://tour:7029
     depends_on:
       - identity
       - stakeholders
