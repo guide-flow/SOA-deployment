@@ -17,7 +17,7 @@ services:
   # IDENTITY
   identity:
     build:
-      context: ../identity/Identity
+      context: ../../IdentityService/identity/Identity
       dockerfile: Identity.Api/Dockerfile
     container_name: identity
     ports:
@@ -46,7 +46,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER_IDENTITY}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_IDENTITY}
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - pgdata_identity:/var/lib/postgresql/data
     healthcheck:
@@ -59,7 +59,7 @@ services:
   # STAKEHOLDERS
   stakeholders:
     build:
-      context: ../stakeholders/Stakeholders
+      context: ../../StakeholdersService/stakeholders/Stakeholders
       dockerfile: Stakeholders/Dockerfile
     container_name: stakeholders
     ports:
@@ -95,7 +95,7 @@ services:
   # FOLLOWERS
   follower-api:
     build:
-      context: ../followers-service/Followers
+      context: ../../FollowerService/followers-service/Followers
       dockerfile: Followers/Dockerfile
     container_name: follower-api
     ports:
@@ -137,19 +137,25 @@ services:
   # TOURS
   tour:
     build:
-      context: ../tours/Tour
+      context: ../../TourService/tours/Tour
       dockerfile: Tour/Dockerfile
     container_name: tour
     ports:
-      - "5229:5229"
+      - "5229:5229" 
+      - "7029:7029"   
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5229
+      Kestrel_Http_Port: "5229"
+      Kestrel_Https_Port: "7029"
+      Kestrel_Cert_Path: "/https/https-devcert.pfx"
+      Kestrel_Cert_Password: "${DEV_CERT_PASSWORD}"
       NATS_URL: nats://nats:4222
       DB_CONNECTION_STRING_TOUR: ${DB_CONNECTION_STRING_TOUR}
       SECRET_KEY: ${SECRET_KEY}
       ISSUER: ${ISSUER}
       AUDIENCE: ${AUDIENCE}
+    volumes:
+      - ${USERPROFILE}\.aspnet\https\TourService.pfx:/https/https-devcert.pfx:ro
     depends_on:
       nats:
         condition: service_started
@@ -179,7 +185,7 @@ services:
   # GATEWAY
   gateway:
     build:
-      context: ../gateway/Gateway
+      context: ../../Gateway/gateway/Gateway
       dockerfile: Gateway/Dockerfile
     container_name: gateway
     ports:
@@ -190,7 +196,7 @@ services:
       IDENTITY_URL: http://identity:5226
       STAKEHOLDER_URL: http://stakeholders:5227
       FOLLOWER_URL: http://follower-api:5228
-      TOUR_URL: http://tour:5229
+      TOUR_URL: https://tour:7029
     depends_on:
       - identity
       - stakeholders
@@ -207,4 +213,5 @@ services:
     networks:
       - soa-net
 
+      
       
