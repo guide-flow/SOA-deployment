@@ -6,6 +6,7 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
@@ -32,6 +33,40 @@ services:
       - '--path.rootfs=/rootfs'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
 
+  docker-stats-exporter:
+    image: wywywywy/docker_stats_exporter:latest
+    container_name: docker-stats-exporter
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "9487:9487"
+    networks:
+      - soa-net
+
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - ../grafana/dashboards:/etc/grafana/dashboards
+      - ../grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - soa-net
+
+
 networks:
   soa-net:
     external: true
+
+volumes:
+  grafana-data:
+  prometheus-data:
+
