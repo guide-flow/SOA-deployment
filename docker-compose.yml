@@ -17,7 +17,7 @@ services:
   # IDENTITY
   identity:
     build:
-      context: ../../IdentityService/identity/Identity
+      context: ../identity/Identity
       dockerfile: Identity.Api/Dockerfile
     container_name: identity
     ports:
@@ -59,11 +59,13 @@ services:
   # STAKEHOLDERS
   stakeholders:
     build:
-      context: ../../StakeholdersService/stakeholders/Stakeholders
+      context: ../stakeholders/Stakeholders
       dockerfile: Stakeholders/Dockerfile
     container_name: stakeholders
     ports:
       - "5227:5227"
+    volumes:
+      - .Stakeholders/wwwroot:/app/wwwroot
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5227
@@ -95,7 +97,7 @@ services:
   # FOLLOWERS
   follower-api:
     build:
-      context: ../../FollowerService/followers-service/Followers
+      context: ../followers-service/Followers
       dockerfile: Followers/Dockerfile
     container_name: follower-api
     ports:
@@ -137,7 +139,7 @@ services:
   # TOURS
   tour:
     build:
-      context: ../../TourService/tours/Tour
+      context: ../tours/Tour
       dockerfile: Tour/Dockerfile
     container_name: tour
     ports:
@@ -185,7 +187,7 @@ services:
   # GATEWAY
   gateway:
     build:
-      context: ../../Gateway/gateway/Gateway
+      context: ../gateway/Gateway
       dockerfile: Gateway/Dockerfile
     container_name: gateway
     ports:
