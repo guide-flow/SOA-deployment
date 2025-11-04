@@ -2,7 +2,7 @@ version: "3.8"
 
 networks:
   soa-net:
-    external: true
+    driver: bridge
 
 volumes:
   pgdata_identity:
@@ -64,8 +64,6 @@ services:
     container_name: stakeholders
     ports:
       - "5227:5227"
-    volumes:
-      - .Stakeholders/wwwroot:/app/wwwroot
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5227
@@ -114,7 +112,7 @@ services:
       NATS_URL: nats://nats:4222
     depends_on:
       neo4j:
-        condition: service_started
+        condition: service_healthy
       nats:
         condition: service_started
     networks:
@@ -133,6 +131,12 @@ services:
       - neo4j_logs:/logs
       - neo4j_import:/import
       - neo4j_plugins:/plugins
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "followers", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 100s
     networks:
       - soa-net
 
@@ -143,21 +147,15 @@ services:
       dockerfile: Tour/Dockerfile
     container_name: tour
     ports:
-      - "5229:5229" 
-      - "7029:7029"   
+      - "5229:5229"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      Kestrel_Http_Port: "5229"
-      Kestrel_Https_Port: "7029"
-      Kestrel_Cert_Path: "/https/https-devcert.pfx"
-      Kestrel_Cert_Password: "${DEV_CERT_PASSWORD}"
+      ASPNETCORE_URLS: http://+:5229
       NATS_URL: nats://nats:4222
       DB_CONNECTION_STRING_TOUR: ${DB_CONNECTION_STRING_TOUR}
       SECRET_KEY: ${SECRET_KEY}
       ISSUER: ${ISSUER}
       AUDIENCE: ${AUDIENCE}
-    volumes:
-      - ${USERPROFILE}\.aspnet\https\TourService.pfx:/https/https-devcert.pfx:ro
     depends_on:
       nats:
         condition: service_started
@@ -199,7 +197,7 @@ services:
       STAKEHOLDER_URL: http://stakeholders:5227
       FOLLOWER_URL: http://follower-api:5228
       TOUR_HTTP_URL: http://tour:5229
-      TOUR_HTTPS_URL: https://tour:7029
+      TOUR_HTTPS_URL: http://tour:5229
     depends_on:
       - identity
       - stakeholders
