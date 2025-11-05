@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-stakeholders
+  namespace: soa-app
+  labels:
+    app: postgres-stakeholders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: postgres-stakeholders
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: postgres-stakeholders
+        app: postgres-stakeholders
+    spec:
+      containers:
+        - name: postgres-stakeholders
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_DB_STAKEHOLDER
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_USER_STAKEHOLDER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD_STAKEHOLDER
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pgdata-stakeholders
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres -d stakeholder
+            failureThreshold: 5
+            periodSeconds: 10
+            initialDelaySeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres -d stakeholder
+            failureThreshold: 3
+            periodSeconds: 5
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always
+      volumes:
+        - name: pgdata-stakeholders
+          persistentVolumeClaim:
+            claimName: pgdata-stakeholders

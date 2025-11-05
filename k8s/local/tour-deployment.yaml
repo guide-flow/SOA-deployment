@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tour
+  namespace: soa-app
+  labels:
+    app: tour
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: tour
+  template:
+    metadata:
+      labels:
+        io.kompose.service: tour
+        app: tour
+    spec:
+      containers:
+        - name: tour
+          image: tour:latest
+          imagePullPolicy: Never
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              value: http://+:5229
+            - name: AUDIENCE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: AUDIENCE
+            - name: ISSUER
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ISSUER
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: NATS_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SECRET_KEY
+            - name: DB_CONNECTION_STRING_TOUR
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_CONNECTION_STRING_TOUR
+          ports:
+            - name: http
+              containerPort: 5229
+              protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always

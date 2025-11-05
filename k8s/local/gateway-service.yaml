@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: soa-app
+  labels:
+    app: gateway
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 5230
+      targetPort: 5230
+  selector:
+    io.kompose.service: gateway

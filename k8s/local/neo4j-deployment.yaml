@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neo4j
+  namespace: soa-app
+  labels:
+    app: neo4j
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: neo4j
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: neo4j
+        app: neo4j
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: neo4j
+          image: neo4j:latest
+          env:
+            - name: NEO4J_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: NEO4J_AUTH
+          ports:
+            - name: http
+              containerPort: 7474
+              protocol: TCP
+            - name: bolt
+              containerPort: 7687
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: neo4j-data
+            - mountPath: /logs
+              name: neo4j-logs
+            - mountPath: /import
+              name: neo4j-import
+            - mountPath: /plugins
+              name: neo4j-plugins
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - cypher-shell -u neo4j -p followers "RETURN 1"
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - cypher-shell -u neo4j -p followers "RETURN 1"
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 20
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      restartPolicy: Always
+      volumes:
+        - name: neo4j-data
+          persistentVolumeClaim:
+            claimName: neo4j-data
+        - name: neo4j-logs
+          persistentVolumeClaim:
+            claimName: neo4j-logs
+        - name: neo4j-import
+          persistentVolumeClaim:
+            claimName: neo4j-import
+        - name: neo4j-plugins
+          persistentVolumeClaim:
+            claimName: neo4j-plugins
