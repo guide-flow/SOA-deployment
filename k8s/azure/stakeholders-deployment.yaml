@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stakeholders
+  namespace: soa-app
+  labels:
+    app: stakeholders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: stakeholders
+  template:
+    metadata:
+      labels:
+        io.kompose.service: stakeholders
+        app: stakeholders
+    spec:
+      containers:
+        - name: stakeholders
+          image: {{ACR_NAME}}.azurecr.io/stakeholders:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              value: http://+:5227
+            - name: DB_CONNECTION_STRING_STAKEHOLDER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_CONNECTION_STRING_STAKEHOLDER
+          ports:
+            - name: http
+              containerPort: 5227
+              protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always

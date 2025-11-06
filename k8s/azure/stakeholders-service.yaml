@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stakeholders
+  namespace: soa-app
+  labels:
+    app: stakeholders
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 5227
+      targetPort: 5227
+  selector:
+    io.kompose.service: stakeholders

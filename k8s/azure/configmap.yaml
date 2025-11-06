@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: soa-app
+data:
+  # ASP.NET Core
+  ASPNETCORE_ENVIRONMENT: "Development"
+
+  # JWT Config (non-sensitive)
+  ISSUER: "http://identity:5226"
+  AUDIENCE: "guide-flow-api"
+
+  # Service URLs
+  IDENTITY_URL: "http://identity:5226"
+  STAKEHOLDER_URL: "http://stakeholders:5227"
+  FOLLOWER_URL: "http://follower-api:5228"
+  TOUR_HTTP_URL: "http://tour:5229"
+  TOUR_HTTPS_URL: "http://tour:5229"
+
+  # Message Broker
+  NATS_URL: "nats://nats:4222"
+
+  # Neo4j Config (non-sensitive)
+  NEO4J_USER: "neo4j"
+  NEO4J_URI: "bolt://neo4j:7687"
+
+  # Database Names
+  POSTGRES_DB_IDENTITY: "identity"
+  POSTGRES_DB_STAKEHOLDER: "stakeholder"
+  POSTGRES_DB_TOUR: "tour"
+
+  # Database Users
+  POSTGRES_USER_IDENTITY: "postgres"
+  POSTGRES_USER_STAKEHOLDER: "postgres"
+  POSTGRES_USER_TOUR: "postgres"
