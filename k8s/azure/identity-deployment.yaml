@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: identity
-          image: {{ACR_NAME}}.azurecr.io/identity:latest
+          image: soathesisregistryserbia.azurecr.io/identity:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: ASPNETCORE_ENVIRONMENT
@@ -60,7 +60,7 @@ spec:
           resources:
             requests:
               memory: "128Mi"
-              cpu: "200m"
+              cpu: "100m"
             limits:
               memory: "256Mi"
               cpu: "500m"

@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: {{ACR_NAME}}.azurecr.io/gateway:latest
-          imagePullPolicy: IfNotPresent
+          image: soathesisregistryserbia.azurecr.io/gateway:latest
+          imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT
               valueFrom:
@@ -60,7 +60,7 @@ spec:
           resources:
             requests:
               memory: "128Mi"
-              cpu: "200m"
+              cpu: "100m"
             limits:
               memory: "256Mi"
               cpu: "500m"

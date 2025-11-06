@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: tour
-          image: {{ACR_NAME}}.azurecr.io/tour:latest
+          image: soathesisregistryserbia.azurecr.io/tour:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: ASPNETCORE_ENVIRONMENT
@@ -60,7 +60,7 @@ spec:
           resources:
             requests:
               memory: "128Mi"
-              cpu: "200m"
+              cpu: "100m"
             limits:
               memory: "256Mi"
               cpu: "500m"

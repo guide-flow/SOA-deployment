@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: {{ACR_NAME}}.azurecr.io/frontend:latest
-          imagePullPolicy: IfNotPresent
+          image: soathesisregistryserbia.azurecr.io/frontend:latest
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
