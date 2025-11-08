@@ -50,25 +50,21 @@ spec:
             - mountPath: /plugins
               name: neo4j-plugins
           livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - cypher-shell "RETURN 1"
+            httpGet:
+              path: /
+              port: 7474
             initialDelaySeconds: 60
             periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
           readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - cypher-shell "RETURN 1"
+            httpGet:
+              path: /
+              port: 7474
             initialDelaySeconds: 60
             periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               memory: "1Gi"
