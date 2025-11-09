@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: follower-api
+  namespace: soa-app
+  labels:
+    app: follower-api
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 5228
+      targetPort: 5228
+  selector:
+    io.kompose.service: follower-api

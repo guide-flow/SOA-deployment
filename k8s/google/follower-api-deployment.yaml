@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: follower-api
+  namespace: soa-app
+  labels:
+    app: follower-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: follower-api
+  template:
+    metadata:
+      labels:
+        io.kompose.service: follower-api
+        app: follower-api
+    spec:
+      containers:
+        - name: follower-api
+          image: europe-west3-docker.pkg.dev/soa-backend/soa-app-repo/follower-api:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              value: http://+:5228
+            - name: AUDIENCE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: AUDIENCE
+            - name: ISSUER
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ISSUER
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: NATS_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SECRET_KEY
+            - name: URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: NEO4J_URI
+            - name: USER
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: NEO4J_USER
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: NEO4J_PASSWORD
+          ports:
+            - name: http
+              containerPort: 5228
+              protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always

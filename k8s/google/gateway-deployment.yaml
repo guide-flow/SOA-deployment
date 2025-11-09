@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: soa-app
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: gateway
+  template:
+    metadata:
+      labels:
+        io.kompose.service: gateway
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: europe-west3-docker.pkg.dev/soa-backend/soa-app-repo/gateway:latest
+          imagePullPolicy: Always
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE_URLS
+              value: http://+:5230
+            - name: IDENTITY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: IDENTITY_URL
+            - name: STAKEHOLDER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: STAKEHOLDER_URL
+            - name: FOLLOWER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FOLLOWER_URL
+            - name: TOUR_HTTP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: TOUR_HTTP_URL
+            - name: TOUR_HTTPS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: TOUR_HTTPS_URL
+          ports:
+            - name: http
+              containerPort: 5230
+              protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always
