@@ -19,7 +19,7 @@ spec:
       containers:
         - name: identity
           image: europe-west3-docker.pkg.dev/soa-backend/soa-app-repo/identity:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT
               valueFrom:

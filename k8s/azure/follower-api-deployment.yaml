@@ -19,7 +19,7 @@ spec:
       containers:
         - name: follower-api
           image: soathesisregistryserbia.azurecr.io/follower-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT
               valueFrom:

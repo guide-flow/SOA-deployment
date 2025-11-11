@@ -19,7 +19,7 @@ spec:
       containers:
         - name: tour
           image: soathesisregistryserbia.azurecr.io/tour:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT
               valueFrom:

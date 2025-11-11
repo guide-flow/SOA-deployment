@@ -48,7 +48,7 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - pgdata_identity:/var/lib/postgresql/data
+      - pgdata_identity:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER_IDENTITY} -d ${POSTGRES_DB_IDENTITY}"]
       interval: 5s
@@ -84,7 +84,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - pgdata_stakeholders:/var/lib/postgresql/data
+      - pgdata_stakeholders:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER_STAKEHOLDER} -d ${POSTGRES_DB_STAKEHOLDER}"]
       interval: 5s
@@ -175,7 +175,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - pgdata_tours:/var/lib/postgresql/data
+      - pgdata_tours:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER_TOUR} -d ${POSTGRES_DB_TOUR}"]
       interval: 5s
