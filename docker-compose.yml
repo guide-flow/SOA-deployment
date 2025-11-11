@@ -8,6 +8,7 @@ volumes:
   pgdata_identity:
   pgdata_stakeholders:
   pgdata_tours:
+  stakeholders_images:
   neo4j_data:
   neo4j_logs:
   neo4j_import:
@@ -68,6 +69,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5227
       DB_CONNECTION_STRING_STAKEHOLDER: ${DB_CONNECTION_STRING_STAKEHOLDER}
+    volumes:
+      - stakeholders_images:/app/wwwroot/images
     depends_on:
       postgres_stakeholders:
         condition: service_healthy

@@ -37,6 +37,9 @@ spec:
             - name: http
               containerPort: 5227
               protocol: TCP
+          volumeMounts:
+            - name: stakeholders-images
+              mountPath: /app/wwwroot/images
           resources:
             requests:
               memory: "128Mi"
@@ -44,4 +47,8 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
+      volumes:
+        - name: stakeholders-images
+          persistentVolumeClaim:
+            claimName: stakeholders-images
       restartPolicy: Always
