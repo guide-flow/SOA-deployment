@@ -16,6 +16,8 @@ spec:
         io.kompose.service: stakeholders
         app: stakeholders
     spec:
+      securityContext:
+        fsGroup: 1654
       containers:
         - name: stakeholders
           image: soathesisregistryserbia.azurecr.io/stakeholders:latest

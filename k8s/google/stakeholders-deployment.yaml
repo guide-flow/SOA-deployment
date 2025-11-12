@@ -16,6 +16,8 @@ spec:
         io.kompose.service: stakeholders
         app: stakeholders
     spec:
+      securityContext:
+        fsGroup: 1654
       containers:
         - name: stakeholders
           image: europe-west3-docker.pkg.dev/soa-backend/soa-app-repo/stakeholders:latest
